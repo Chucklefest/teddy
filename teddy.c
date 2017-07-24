@@ -1,14 +1,23 @@
 #include <stdio.h>
+#include <string.h>
 
-#define BUF_LEN 2024 //81*25
+#define LINE_BUF_LEN 256 //81*25
 
+int readline(char buf[], FILE * fp)
+{
+	return fgets(buf, sizeof buf, fp) != NULL ? 0 : 1;
+}
 int main(int argc, char ** argv){
-	printf("%s %s\n", argv[0], argv[1]);
 	FILE * fp = fopen(argv[1] ? argv[1] : "file.default", "rw");
-	char buf[BUF_LEN];
-	fread(buf, 1, BUF_LEN, fp);
-	for (int i = 0; i < BUF_LEN && buf[i] != 0; i++)
-		printf("%c", buf[i]);
+	char line_buf[LINE_BUF_LEN];
+	while(!readline(line_buf, fp))
+	{
+		printf("%s", line_buf);
+		if(line_buf[strlen(line_buf)] != '\n')
+		{
+			printf("LINE TOO LONG at %zu c:%x ", strlen(line_buf) - 1, line_buf[strlen(line_buf) - 1]);
+		}
+	}
 	fclose(fp);
 	return 0;
 }
