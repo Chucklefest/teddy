@@ -52,25 +52,18 @@ int main(int argc, char ** argv){
 	char c;
 	while(read(0, &c, 1) != -1)
 	{
-		if(c == 'j')
-		{
+		if(c == 'j' && cur != (line_t *) NULL)
+			{
 			cur->next = (line_t *) malloc(sizeof(line_t));
 		   	cur->next->prev = cur;
-			printf("%s[%p]", cur->buf, cur->next);
+			printf("%s[%p %p]", cur->buf, cur->prev, cur->next);
 			cur = cur->next;
 		   	if(!readline(cur->buf, fp))
 			{
-				cur->next = -1;
-				printf("EOF reached");
+				cur = (line_t *) NULL;
+				printf("EOF reached, line_t: %luB", sizeof (line_t));
 			}
-			if(cur->buf[strlen(cur->buf)] == EOF)
-			{
-				cur->next = (line_t *)0;
-				printf("EOF\n");
-				fflush(stdout);
-			}// else printf("[%c|%x]", cur->buf[strlen(cur->buf)], cur->buf[strlen(cur->buf)]);  
-			if(cur == 0) { printf("Out of memory"); return -1; }	
-			fflush(stdout);
+			fflush(stdout); 
 		} else if (c == 'q') {
 			break;
 		}
