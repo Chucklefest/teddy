@@ -11,6 +11,7 @@ typedef struct line {
 	char buf[LINE_BUF_LEN];
 	struct line * next;
 } line_t;
+line_t * cur;
 
 int readline(char buf[], FILE * fp)
 {
@@ -19,10 +20,17 @@ int readline(char buf[], FILE * fp)
 int scroll(char down, FILE * fp)
 {
 	if(down)
-	{
-		line_t * cur = malloc(sizeof(line_t));
-		if(readline(cur->buf, fp));
-
+	{ 
+		cur->next = (line_t *) malloc(sizeof(line_t));
+		cur->next->prev = cur;
+		printf("[%p|%p|%p]%s", cur->prev, cur, cur->next, cur->buf);
+		cur = cur->next;
+		if(!readline(cur->buf, fp))
+		{
+			cur = (line_t *) NULL;
+			printf("EOF reached, line_t: %luB", sizeof (line_t));
+		}
+		fflush(stdout); 
 	} else {
 		printf("Only down scrolling supported for now");
 	}
@@ -42,7 +50,6 @@ int main(int argc, char ** argv){
 	//setbuf(stdout, NULL);			// Disable buffering of stdout
 
 	line_t * root = malloc(sizeof(line_t));
-	line_t * cur;
 	root->prev = 0;
 	root->next = (line_t *)&cur;
 	
@@ -53,17 +60,8 @@ int main(int argc, char ** argv){
 	while(read(0, &c, 1) != -1)
 	{
 		if(c == 'j' && cur != (line_t *) NULL)
-			{
-			cur->next = (line_t *) malloc(sizeof(line_t));
-		   	cur->next->prev = cur;
-			printf("%s[%p %p]", cur->buf, cur->prev, cur->next);
-			cur = cur->next;
-		   	if(!readline(cur->buf, fp))
-			{
-				cur = (line_t *) NULL;
-				printf("EOF reached, line_t: %luB", sizeof (line_t));
-			}
-			fflush(stdout); 
+		{
+			scroll(1, fp);
 		} else if (c == 'q') {
 			break;
 		}
